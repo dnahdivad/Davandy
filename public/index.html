@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>DAVANDY</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23f2e3b6'/%3E%3Crect y='7' width='8' height='1' fill='%23b08a4a'/%3E%3Cpath d='M2 2h1v4H2zM3 2h2v1H3zM3 4h2v1H3zM5 2h1v4H5z' fill='%232a1d12'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="sea"></canvas>
+
+<!-- ============ LOBBY ============ -->
+<main id="lobby" class="screen">
+  <h1 class="logo">DAVANDY</h1>
+  <p class="tag">a word game for two, by the sea</p>
+
+  <section class="panel" id="joinPanel" hidden>
+    <h2>JOIN <span id="joinCode"></span></h2>
+    <p id="joinBlurb"></p>
+    <label>Your name <input id="joinName" maxlength="16" autocomplete="off"></label>
+    <button class="btn big" id="joinGo">JOIN GAME</button>
+  </section>
+
+  <section class="panel" id="createPanel">
+    <label>Your name <input id="name" maxlength="16" autocomplete="off"></label>
+
+    <div class="modes">
+      <button class="mode on" data-mode="duel">
+        <span class="mode-icon duel"></span>
+        <b>DUEL</b>
+        <small>Head to head. Long words beat clever squares, and a trailing player gets help from the tide.</small>
+      </button>
+      <button class="mode" data-mode="lighthouse">
+        <span class="mode-icon lh"></span>
+        <b>LIGHTHOUSE</b>
+        <small>Together. Light every lantern on the board before the night runs out.</small>
+      </button>
+    </div>
+
+    <div class="opts" id="duelOpts">
+      <div class="opt"><span>Head start</span>
+        <div class="seg" data-key="headStart"><button data-v="0" class="on">NONE</button><button data-v="15">15</button><button data-v="30">30</button><button data-v="50">50</button></div>
+      </div>
+      <div class="opt" id="hsWho" hidden><span>…for</span>
+        <div class="seg" data-key="headStartSeat"><button data-v="1" class="on">OPPONENT</button><button data-v="0">ME</button></div>
+      </div>
+      <div class="opt"><span>Turn timer</span>
+        <div class="seg" data-key="timer"><button data-v="0" class="on">OFF</button><button data-v="60">1 MIN</button><button data-v="120">2 MIN</button><button data-v="180">3 MIN</button></div>
+      </div>
+    </div>
+    <div class="opts" id="lhOpts" hidden>
+      <div class="opt"><span>Weather</span>
+        <div class="seg" data-key="difficulty"><button data-v="calm">CALM</button><button data-v="squall" class="on">SQUALL</button><button data-v="storm">STORM</button></div>
+      </div>
+      <p class="hint" id="lhHint"></p>
+    </div>
+
+    <button class="btn big" id="createGo">START A GAME</button>
+    <div class="or">or join with a code</div>
+    <div class="row"><input id="code" maxlength="4" placeholder="CODE" autocomplete="off"><button class="btn" id="codeGo">JOIN</button></div>
+    <button class="link" id="rulesBtn">How to play</button>
+  </section>
+  <p class="credit">Designed &amp; built by Claude (Anthropic) for Dave &amp; Mandy</p>
+</main>
+
+<!-- ============ GAME ============ -->
+<main id="game" class="screen" hidden>
+  <header class="bar">
+    <div class="who" id="p0"></div>
+    <div class="mid">
+      <div id="status"></div>
+      <div class="meta"><span id="bag"></span><span id="clock"></span></div>
+    </div>
+    <div class="who right" id="p1"></div>
+  </header>
+
+  <div class="wait panel" id="waiting" hidden>
+    <h2>WAITING FOR A PLAYER</h2>
+    <p>Send this link:</p>
+    <div class="row"><input id="shareLink" readonly><button class="btn" id="copyLink">COPY</button></div>
+    <p class="big-code" id="bigCode"></p>
+  </div>
+
+  <div class="table">
+    <div class="board-wrap"><div id="board"></div></div>
+    <aside class="side">
+      <div id="lanternList"></div>
+      <div class="log" id="log"></div>
+      <form class="chat" id="chatForm"><input id="chatIn" maxlength="140" placeholder="say something…" autocomplete="off"></form>
+    </aside>
+  </div>
+
+  <div id="partner" hidden></div>
+  <div class="preview" id="preview">&nbsp;</div>
+  <div id="rack"></div>
+  <div class="actions">
+    <button class="btn go" id="playBtn">PLAY</button>
+    <button class="btn" id="recallBtn">RECALL</button>
+    <button class="btn" id="shuffleBtn">SHUFFLE</button>
+    <button class="btn" id="swapBtn">SWAP</button>
+    <button class="btn" id="giveBtn" hidden>GIVE</button>
+    <button class="btn" id="passBtn">PASS</button>
+    <button class="btn ghost" id="muteBtn" title="sound">♪</button>
+    <button class="btn ghost" id="helpBtn" title="rules">?</button>
+  </div>
+  <p class="credit">DAVANDY · designed &amp; built by Claude (Anthropic) · <a href="/">new game</a></p>
+</main>
+
+<!-- ============ MODALS ============ -->
+<div class="modal" id="blankModal" hidden>
+  <div class="panel"><h2>BLANK TILE</h2><p>Which letter is it?</p><div id="blankLetters"></div><button class="btn" id="blankCancel">CANCEL</button></div>
+</div>
+<div class="modal" id="endModal" hidden>
+  <div class="panel"><h2 id="endTitle"></h2><p id="endText"></p><button class="btn big" id="rematchBtn">PLAY AGAIN</button> <button class="btn" id="endClose">LOOK AT BOARD</button></div>
+</div>
+<div class="modal" id="rulesModal" hidden>
+  <div class="panel rules">
+    <h2>HOW TO PLAY</h2>
+    <h3>Placing tiles</h3>
+    <p>Tap a tile on your rack, then tap a square. Or tap an empty square and type: the cursor moves along as you go (tap the square again to switch between across and down). Backspace takes a tile back and Enter plays. Every word you make must be in the dictionary. British, Irish and American spellings all count.</p>
+    <h3>DUEL scoring</h3>
+    <p>Only your <b>main word</b> scores. Side-words you make along the way must still be real words, but they add nothing, so hooking and stacking tricks aren't worth much.</p>
+    <p>Your score is the letter values, plus a <b>length bonus</b> (4 letters +2, 5 +5, 6 +9, 7 +14, 8 +20, and more beyond), plus <b>+5 for each shell</b> you cover. Use 7 tiles at once for another +20. Shells are flat bonuses, so it doesn't matter which letter sits on them.</p>
+    <p><b>The tide:</b> fall 20 or more points behind and the tide comes in for you. Your words score ×1.25 (×1.5 from 50 behind, ×1.75 from 90 behind), you hold an 8th tile, and you can swap up to 3 tiles for free before you play. The scoreboard shows when it's running.</p>
+    <p>The game ends when someone uses their last tile and the bag is empty, or after 6 scoreless turns in a row.</p>
+    <h3>LIGHTHOUSE (co-op)</h3>
+    <p>Lanterns are scattered across the board, each with a number. To light one, make a word at least that long that runs through it. A lantern square only accepts a tile that lights it, so you can't waste one, but you can box one in by building too closely around it. Light them all before the shared turns run out.</p>
+    <p>Both racks are visible to both of you, so plan together. Once a turn you can <b>GIVE</b> one tile to your partner before you play: tap the tile, then GIVE.</p>
+  </div>
+</div>
+
+<script src="client.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "davandy",
+  "version": "1.0.0",
+  "description": "DAVANDY: a two-player live word game (Duel + co-op Lighthouse). Built by Claude for Dave & Mandy.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/engine.test.js"
+  },
+  "author": "Built by Claude (Anthropic) for Dave",
+  "license": "MIT",
+  "dependencies": {
+    "@fontsource/press-start-2p": "^5.3.0",
+    "@fontsource/vt323": "^5.3.0",
+    "express": "^5.3.0",
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "wordlist-english": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
