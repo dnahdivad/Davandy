@@ -2,18 +2,16 @@ services:
   - type: web
     name: davandy
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm ci --omit=dev
     startCommand: node server.js
     healthCheckPath: /healthz
     envVars:
       - key: NODE_VERSION
         value: "22"
-    # Free instances have no persistent disk, so saved games are lost when the
-    # service restarts or sleeps. To keep games across restarts, switch to a
-    # paid plan (e.g. starter) and uncomment these lines:
-    # disk:
-    #   name: davandy-data
-    #   mountPath: /data
-    #   sizeGB: 1
-    # and add an env var  DATA_DIR=/data
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: davandy-data
+      mountPath: /data
+      sizeGB: 1
