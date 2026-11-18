@@ -16,6 +16,9 @@ Environment: `PORT` (default 3000), `DATA_DIR` (default `./data`; games are save
 
 ## Host on ailoveit.eu
 
+**Render:** New → Blueprint → pick this repo; `render.yaml` sets everything up. Then add `davandy.ailoveit.eu` under the service's Settings → Custom Domains and create the CNAME it gives you at your DNS provider. On the free plan, saved games don't survive a restart or sleep (see the comments in `render.yaml`).
+
+**Anywhere else:** 
 It's one Node process that serves the page and a WebSocket at `/ws`. Docker:
 
 ```
